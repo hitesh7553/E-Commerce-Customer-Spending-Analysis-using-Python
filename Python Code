@@ -1,0 +1,85 @@
+# E-Commerce Customer Spending Analysis
+# Author: Hitesh Kasdey
+# Date: September 2025
+
+# -----------------------------
+# 1. Import Libraries
+# -----------------------------
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# -----------------------------
+# 2. Load Data
+# -----------------------------
+df = pd.read_csv('data/ecommerce_data.csv', encoding='ISO-8859-1')
+print(df.head())
+print(df.info())
+
+# -----------------------------
+# 3. Data Cleaning
+# -----------------------------
+# Drop missing Customer IDs
+df = df.dropna(subset=['CustomerID'])
+
+# Remove negative quantities (returns)
+df = df[df['Quantity'] > 0]
+
+# Add 'TotalPrice' column
+df['TotalPrice'] = df['Quantity'] * df['UnitPrice']
+
+# Convert InvoiceDate to datetime
+df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])
+
+# -----------------------------
+# 4. Basic Insights
+# -----------------------------
+print("Total Orders:", df['InvoiceNo'].nunique())
+print("Unique Customers:", df['CustomerID'].nunique())
+print("Total Revenue: £", round(df['TotalPrice'].sum(), 2))
+
+# -----------------------------
+# 5. Revenue by Country
+# -----------------------------
+country_revenue = df.groupby('Country')['TotalPrice'].sum().sort_values(ascending=False).head(10)
+plt.figure(figsize=(10,5))
+sns.barplot(x=country_revenue.values, y=country_revenue.index, palette='viridis')
+plt.title('Top 10 Countries by Revenue')
+plt.xlabel('Total Revenue (£)')
+plt.ylabel('Country')
+plt.show()
+
+# -----------------------------
+# 6. Monthly Revenue Trend
+# -----------------------------
+df['Month'] = df['InvoiceDate'].dt.to_period('M')
+monthly_sales = df.groupby('Month')['TotalPrice'].sum()
+plt.figure(figsize=(10,5))
+monthly_sales.plot(marker='o', color='teal')
+plt.title('Monthly Revenue Trend')
+plt.xlabel('Month')
+plt.ylabel('Revenue (£)')
+plt.show()
+
+# -----------------------------
+# 7. Top 10 Best-Selling Products
+# -----------------------------
+top_products = df.groupby('Description')['Quantity'].sum().sort_values(ascending=False).head(10)
+plt.figure(figsize=(10,5))
+sns.barplot(x=top_products.values, y=top_products.index, palette='coolwarm')
+plt.title('Top 10 Best-Selling Products')
+plt.xlabel('Quantity Sold')
+plt.ylabel('Product')
+plt.show()
+
+# -----------------------------
+# 8. Average Spending per Customer
+# -----------------------------
+customer_spend = df.groupby('CustomerID')['TotalPrice'].sum()
+sns.histplot(customer_spend, bins=30, kde=True, color='orange')
+plt.title('Distribution of Customer Spending')
+plt.xlabel('Total Spending (£)')
+plt.ylabel('Number of Customers')
+plt.show()
+
+print("Average spending per customer: £", round(customer_spend.mean(), 2))
