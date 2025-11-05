@@ -46,8 +46,4 @@ It contains 500,000+ rows of online retail transactions including:
 
 ---
 
-## 🚀 How to Run
-1. Clone the repository  
-   ```bash
-   git clone https://github.com/yourusername/Ecommerce_Customer_Analysis.git
-   cd Ecommerce_Customer_Analysis
+
